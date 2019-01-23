@@ -21,7 +21,7 @@ package io.netty.channel;
 @SuppressWarnings({ "ClassNameSameAsAncestorName", "deprecation" })
 public interface ChannelFactory<T extends Channel> extends io.netty.bootstrap.ChannelFactory<T> {
     /**
-     * Creates a new channel.
+     * 创建Channel对象
      */
     @Override
     T newChannel();
