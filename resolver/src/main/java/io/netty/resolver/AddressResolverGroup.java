@@ -52,33 +52,43 @@ public abstract class AddressResolverGroup<T extends SocketAddress> implements C
      * {@link #getResolver(EventExecutor)} call with the same {@link EventExecutor}.
      */
     public AddressResolver<T> getResolver(final EventExecutor executor) {
+        //参数校验
         if (executor == null) {
             throw new NullPointerException("executor");
         }
 
+        //是否被关闭
         if (executor.isShuttingDown()) {
             throw new IllegalStateException("executor not accepting a task");
         }
 
         AddressResolver<T> r;
         synchronized (resolvers) {
+
+            //从解析器缓存中获取地址解析对象
             r = resolvers.get(executor);
+
+            //不存在则初始化，并放入缓存中
             if (r == null) {
                 final AddressResolver<T> newResolver;
                 try {
+                    //初始化地址解析器对象
                     newResolver = newResolver(executor);
                 } catch (Exception e) {
                     throw new IllegalStateException("failed to create a new resolver", e);
                 }
 
+                //将地址解析器对象放入缓存中
                 resolvers.put(executor, newResolver);
+
+                //executor被终止时触发operationComplete方法的执行
                 executor.terminationFuture().addListener(new FutureListener<Object>() {
                     @Override
                     public void operationComplete(Future<Object> future) throws Exception {
                         synchronized (resolvers) {
-                            resolvers.remove(executor);
+                            resolvers.remove(executor);//从缓存中删除指定key的地址解析器
                         }
-                        newResolver.close();
+                        newResolver.close();//关闭地址解析器
                     }
                 });
 

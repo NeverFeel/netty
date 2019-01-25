@@ -251,13 +251,21 @@ public abstract class AbstractNioChannel extends AbstractChannel {
                     throw new ConnectionPendingException();
                 }
 
+                // 记录 Channel 是否激活
                 boolean wasActive = isActive();
+
+                // 执行连接远程地址
                 if (doConnect(remoteAddress, localAddress)) {
                     fulfillConnectPromise(promise, wasActive);
                 } else {
+                    // 记录 connectPromise
                     connectPromise = promise;
+
+                    // 记录 requestedRemoteAddress
                     requestedRemoteAddress = remoteAddress;
 
+                    // 使用 EventLoop 发起定时任务，监听连接远程地址超时。
+                    // 若连接超时，则回调通知 connectPromise 超时异常。
                     // Schedule connect timeout.
                     int connectTimeoutMillis = config().getConnectTimeoutMillis();
                     if (connectTimeoutMillis > 0) {
@@ -274,13 +282,17 @@ public abstract class AbstractNioChannel extends AbstractChannel {
                         }, connectTimeoutMillis, TimeUnit.MILLISECONDS);
                     }
 
+                    // 添加监听器，监听连接远程地址取消。
                     promise.addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isCancelled()) {
                                 if (connectTimeoutFuture != null) {
+                                    // 取消定时任务
                                     connectTimeoutFuture.cancel(false);
                                 }
+
+                                // 置空 connectPromise
                                 connectPromise = null;
                                 close(voidPromise());
                             }
@@ -288,6 +300,8 @@ public abstract class AbstractNioChannel extends AbstractChannel {
                     });
                 }
             } catch (Throwable t) {
+
+                // 回调通知 promise 发生异常
                 promise.tryFailure(annotateConnectException(t, remoteAddress));
                 closeIfClosed();
             }
