@@ -39,6 +39,7 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
      * @see AbstractNioChannel#AbstractNioChannel(Channel, SelectableChannel, int)
      */
     protected AbstractNioMessageChannel(Channel parent, SelectableChannel ch, int readInterestOp) {
+        //调用父类的构造函数
         super(parent, ch, readInterestOp);
     }
 
