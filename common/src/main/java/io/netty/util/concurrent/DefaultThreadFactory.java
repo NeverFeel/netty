@@ -31,10 +31,14 @@ public class DefaultThreadFactory implements ThreadFactory {
 
     private final AtomicInteger nextId = new AtomicInteger();
     private final String prefix;
-    private final boolean daemon;
-    private final int priority;
+    private final boolean daemon;//是否是守护线程
+    private final int priority;//线程优先级
     protected final ThreadGroup threadGroup;
 
+    /**
+     * 创建DefaultThreadFactory实例
+     * @param poolType 线程池类型
+     */
     public DefaultThreadFactory(Class<?> poolType) {
         this(poolType, false, Thread.NORM_PRIORITY);
     }
@@ -63,6 +67,7 @@ public class DefaultThreadFactory implements ThreadFactory {
         this(toPoolName(poolType), daemon, priority);
     }
 
+    //转换成线程池名称
     public static String toPoolName(Class<?> poolType) {
         if (poolType == null) {
             throw new NullPointerException("poolType");
@@ -103,6 +108,11 @@ public class DefaultThreadFactory implements ThreadFactory {
                 Thread.currentThread().getThreadGroup() : System.getSecurityManager().getThreadGroup());
     }
 
+    /**
+     * 该方法在Executor中被调用
+     * @param r 任务
+     * @return 线程实例
+     */
     @Override
     public Thread newThread(Runnable r) {
         Thread t = newThread(FastThreadLocalRunnable.wrap(r), prefix + nextId.incrementAndGet());

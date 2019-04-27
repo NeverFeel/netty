@@ -26,12 +26,17 @@ import java.util.concurrent.TimeUnit;
  * via its {@link #next()} method. Besides this, it is also responsible for handling their
  * life-cycle and allows shutting them down in a global fashion.
  *
+ * EventExecutorGroup的职责是通过调用next方法提供的EventExecutor来使用。除此之外，它的职责还包括
+ * 处理它们的生命周期，并且用一种全局的方式来关闭它们。
+ *
  */
 public interface EventExecutorGroup extends ScheduledExecutorService, Iterable<EventExecutor> {
 
     /**
      * Returns {@code true} if and only if all {@link EventExecutor}s managed by this {@link EventExecutorGroup}
      * are being {@linkplain #shutdownGracefully() shut down gracefully} or was {@linkplain #isShutdown() shut down}.
+     *
+     * 当且仅当被当前EventExecutorGroup所管理的所有EventExecutor都被关闭了，才会返回true
      */
     boolean isShuttingDown();
 
@@ -39,6 +44,8 @@ public interface EventExecutorGroup extends ScheduledExecutorService, Iterable<E
      * Shortcut method for {@link #shutdownGracefully(long, long, TimeUnit)} with sensible default values.
      *
      * @return the {@link #terminationFuture()}
+     *
+     *  针对shutdownGracefully(long, long, TimeUnit)方法，提供了默认值的简洁的方法，
      */
     Future<?> shutdownGracefully();
 
@@ -48,6 +55,10 @@ public interface EventExecutorGroup extends ScheduledExecutorService, Iterable<E
      * Unlike {@link #shutdown()}, graceful shutdown ensures that no tasks are submitted for <i>'the quiet period'</i>
      * (usually a couple seconds) before it shuts itself down.  If a task is submitted during the quiet period,
      * it is guaranteed to be accepted and the quiet period will start over.
+     *
+     * 当前执行器的的关闭信号。一旦这个方法被调用，isShuttingDown()方法就会返回true，并且执行器准备自我关闭。
+     * 和shutdown()方法不同的是，优雅的关闭确保了在它自我关闭前的静默期间内（通常是几秒钟）没有任务会被提交。
+     * 如果任务在静默期内被提交，它保证会被接受并且重新开始静默期。
      *
      * @param quietPeriod the quiet period as described in the documentation
      * @param timeout     the maximum amount of time to wait until the executor is {@linkplain #shutdown()}
@@ -61,6 +72,8 @@ public interface EventExecutorGroup extends ScheduledExecutorService, Iterable<E
     /**
      * Returns the {@link Future} which is notified when all {@link EventExecutor}s managed by this
      * {@link EventExecutorGroup} have been terminated.
+     *
+     * 当被当前EventExecutorGroup所管理的所有EventExecutor都被终止时，返回的Future会被通知
      */
     Future<?> terminationFuture();
 

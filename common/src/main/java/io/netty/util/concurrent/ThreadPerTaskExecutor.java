@@ -28,6 +28,7 @@ public final class ThreadPerTaskExecutor implements Executor {
         this.threadFactory = threadFactory;
     }
 
+    //使用了命令模式和代理模式
     @Override
     public void execute(Runnable command) {
         threadFactory.newThread(command).start();

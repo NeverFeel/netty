@@ -73,13 +73,15 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         }
 
         if (executor == null) {
+            //使用默认的线程执行器
             executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
         }
 
+        //事件执行器组
         children = new EventExecutor[nThreads];
 
         for (int i = 0; i < nThreads; i ++) {
-            boolean success = false;
+            boolean success = false;//标记是否初始化成功
             try {
                 children[i] = newChild(executor, args);
                 success = true;
@@ -87,6 +89,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
                 // TODO: Think about if this is a good exception type
                 throw new IllegalStateException("failed to create a child event loop", e);
             } finally {
+                //如果有一个事件执行器初始化失败，那么将之前初始化的事件执行器都关闭掉
                 if (!success) {
                     for (int j = 0; j < i; j ++) {
                         children[j].shutdownGracefully();
@@ -108,6 +111,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             }
         }
 
+        //
         chooser = chooserFactory.newChooser(children);
 
         final FutureListener<Object> terminationListener = new FutureListener<Object>() {
@@ -128,7 +132,11 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         readonlyChildren = Collections.unmodifiableSet(childrenSet);
     }
 
+    /**
+     * 创建默认的线程工厂，在执行器中通过默认的线程工厂来创建执行任务的线程
+     */
     protected ThreadFactory newDefaultThreadFactory() {
+        //传入当前类的类型信息
         return new DefaultThreadFactory(getClass());
     }
 
