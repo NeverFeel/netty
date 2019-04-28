@@ -129,8 +129,8 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
      */
     /**
      * 用来创建指定Channel类的实例。
-     * 如果Channel实现类中没有无惨的构造函数，那么这个方法和channelFactory(io.netty.channel.ChannelFactory)
-     * 方法都不能使用
+     * 要么使用这个方法，如果channel的实现中没有无参的构造函数，可以使用
+     * channelFactory(io.netty.channel.ChannelFactory)方法
      * @param channelClass Channel的实现类类型
      * @return AbstractBootstrap类型对象
      */

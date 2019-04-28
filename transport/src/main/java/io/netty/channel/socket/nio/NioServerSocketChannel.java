@@ -46,6 +46,10 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
                              implements io.netty.channel.socket.ServerSocketChannel {
 
     private static final ChannelMetadata METADATA = new ChannelMetadata(false, 16);
+
+    /**
+     * 创建选择器提供者对象，用来创建Nio的Selector对象
+     */
     private static final SelectorProvider DEFAULT_SELECTOR_PROVIDER = SelectorProvider.provider();
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NioServerSocketChannel.class);
@@ -86,9 +90,10 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
      * Create a new instance using the given {@link ServerSocketChannel}.
      */
     public NioServerSocketChannel(ServerSocketChannel channel) {
-        //调用父类的构造函数
+        //调用父类的构造函数，注册感兴趣的OP_ACCEPT事件
         super(null, channel, SelectionKey.OP_ACCEPT);
 
+        //javaChannel().socket()返回java ServerSocket对象实例
         config = new NioServerSocketChannelConfig(this, javaChannel().socket());
     }
 
@@ -117,6 +122,9 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
         return null;
     }
 
+    /**
+     * 获取java的ServerSocketChannel对象
+     */
     @Override
     protected ServerSocketChannel javaChannel() {
         return (ServerSocketChannel) super.javaChannel();
